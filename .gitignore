@@ -1,0 +1,8 @@
+.vs
+*\.bin
+*\.obj
+SpotifyContentAvailabilityChecker/bin/Debug/net6.0-windows/
+
+SpotifyContentAvailabilityChecker/obj/Debug/net6.0-windows/
+
+SpotifyContentAvailabilityChecker/obj/
