@@ -46,7 +46,8 @@ namespace SpotifyContentAvailabilityChecker
 
         private void SCAC_Load(object sender, EventArgs e)
         {
-            _contentSelection = 0;
+            _contentSelection = 3;
+            TXT_ContentTypeDisplay.Text = "Unknown (Not Supported)";
             CBX_SearchBy.SelectedIndex = 0;
             CBX_HistorySearchBy.SelectedIndex = 0;
 
@@ -226,6 +227,11 @@ namespace SpotifyContentAvailabilityChecker
             }
         }
 
+        private void BTN_ClearSearch_Click(object sender, EventArgs e)
+        {
+            TXT_ContentLinkURI.Text = "";
+        }
+
         private void TXT_ContentLinkURI_TextChanged(object sender, EventArgs e)
         {
             if (TXT_ContentLinkURI.Text.Contains("track", StringComparison.InvariantCultureIgnoreCase))
@@ -328,15 +334,6 @@ namespace SpotifyContentAvailabilityChecker
             _process.Start();
         }
 
-        private void BTN_SetFavorite_Click(object sender, EventArgs e)
-        {
-            foreach (ListViewItem item in LVW_SearchHistory.SelectedItems)
-            {
-                item.SubItems[0].Text = string.IsNullOrWhiteSpace(item.SubItems[0].Text) ? "\u2605" : "";
-                _searchCollection[item.Index].Text = item.SubItems[0].Text;
-            }
-        }
-
         private void TXT_HistorySearch_TextChanged(object sender, EventArgs e)
         {
             if (!CHK_FavoriteSearchOnly.Checked)
@@ -374,6 +371,11 @@ namespace SpotifyContentAvailabilityChecker
             }
         }
 
+        private void LVW_SearchHistory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SetFavorite();
+        }
+
         private async Task OnAccountUseApproved(object sender, ImplictGrantResponse response) 
         {
             await _loginServer.Stop();
@@ -397,6 +399,27 @@ namespace SpotifyContentAvailabilityChecker
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
+        }
+
+        private void SetFavorite()
+        {
+            foreach (ListViewItem item in LVW_SearchHistory.SelectedItems)
+            {
+                item.SubItems[0].Text = string.IsNullOrWhiteSpace(item.SubItems[0].Text) ? "\u2605" : "";
+                _searchCollection[item.Index].SubItems[0].Text = item.SubItems[0].Text;
+                if (string.IsNullOrWhiteSpace(item.SubItems[0].Text) && CHK_FavoriteSearchOnly.Checked)
+                {
+                    LVW_SearchHistory.Items.RemoveAt(item.Index);
+                    _favoriteSearchCollection.Remove(item);
+                }
+                /*foreach (ListViewItem searchItem in _searchCollection)
+                {
+                    if (searchItem.SubItems[1].Text.Equals(item.SubItems[1].Text) && searchItem.SubItems[2].Text.Equals(item.SubItems[2].Text))
+                    {
+                        _searchCollection[searchItem.Index].SubItems[0].Text = 
+                    }
+                }*/
+            }
         }
 
         private void FillHistoryApplicationObject(ListView.ListViewItemCollection _collection)
@@ -486,7 +509,13 @@ namespace SpotifyContentAvailabilityChecker
             if (_album != null) 
             {
                 string authors = FillAuthorsOfContent(_album.Artists);
-                FillContentInformation(_album.Name, authors, _album.Copyrights[0].Text, _album.Copyrights[1].Text);
+                FillContentInformation
+                (
+                    _album.Name, 
+                    authors,
+                    _album.Copyrights.Count > 1 ? _album.Copyrights[0].Text : "N/A",
+                    _album.Copyrights.Count == 1 ? _album.Copyrights[0].Text : _album.Copyrights[1].Text
+                );
                 FillListViewForAvailability(_album.AvailableMarkets);
                 FillSearchHistory(_album.Name, authors, GetContentType(_contentSelection), _album.ExternalUrls["spotify"]);
             }
@@ -650,11 +679,6 @@ namespace SpotifyContentAvailabilityChecker
                 default:
                     return "Unknown (Not Supported)";
             }
-        }
-
-        private void LVW_SearchHistory_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            BTN_SetFavorite_Click(sender, e);
         }
     }
 }
