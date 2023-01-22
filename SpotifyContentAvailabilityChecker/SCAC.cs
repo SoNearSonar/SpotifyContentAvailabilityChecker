@@ -23,6 +23,7 @@ namespace SpotifyContentAvailabilityChecker
         // Made for holding searches and contries. Used for searching
         private ListView.ListViewItemCollection _itemCollection;
         private ListView.ListViewItemCollection _searchCollection = new ListView.ListViewItemCollection(new ListView());
+        private ListView.ListViewItemCollection _favoriteSearchCollection = new ListView.ListViewItemCollection(new ListView());
 
         // Made for the detection of Spotify content when searching country availability
         private int _contentSelection;
@@ -74,6 +75,10 @@ namespace SpotifyContentAvailabilityChecker
                             ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, FillAuthorsOfContent(search.Authors), search.Type, search.Link });
                             LVW_SearchHistory.Items.Add(item);
                             _searchCollection.Add((ListViewItem)item.Clone());
+                            if (search.Favorite)
+                            {
+                                _favoriteSearchCollection.Add((ListViewItem)item.Clone());
+                            }
                         }
                     }
                 }
@@ -130,38 +135,41 @@ namespace SpotifyContentAvailabilityChecker
                 }
             }
 
-            // Add all the current listed searches in the history area to a list for processing
-            if (LVW_SearchHistory.Items.Count > 0)
+            // Add all the current listed searches in the history area to a list for processing if it is not filtered by favorites
+            if (!CHK_FavoriteSearchOnly.Checked)
             {
-                foreach (ListViewItem item in LVW_SearchHistory.Items)
+                if (LVW_SearchHistory.Items.Count > 0)
                 {
-                    List<string> authors = new List<string>();
-                    foreach (string author in item.SubItems[1].Text.Split(','))
+                    foreach (ListViewItem item in LVW_SearchHistory.Items)
                     {
-                        authors.Add(author);
+                        List<string> authors = new List<string>();
+                        foreach (string author in item.SubItems[2].Text.Split(','))
+                        {
+                            authors.Add(author);
+                        }
+                        _searches.Add(new Search(item.SubItems[0].Text.Equals("\u2605"), item.SubItems[1].Text, authors, item.SubItems[3].Text, item.SubItems[4].Text));
                     }
-                    _searches.Add(new Search(item.SubItems[0].Text.Equals("\u2605"), item.SubItems[1].Text, authors, item.SubItems[3].Text, item.SubItems[4].Text));
                 }
-            }
 
-            // Write all the searches from the list to a .json file
-            if (_searches.Count > 0)
-            {
-                string serializedData = JsonConvert.SerializeObject(_searches, Formatting.Indented);
-                try
+                // Write all the searches from the list to a .json file
+                if (_searches.Count > 0)
                 {
-                    File.WriteAllText(_filePath, serializedData);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show
-                    (
-                        "An error occurred while saving your search history:" +
-                        $"\nError: {ex.Message}",
-                        "Program error", 
-                        MessageBoxButtons.OK, 
-                        MessageBoxIcon.Error
-                    );
+                    string serializedData = JsonConvert.SerializeObject(_searches, Formatting.Indented);
+                    try
+                    {
+                        File.WriteAllText(_filePath, serializedData);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show
+                        (
+                            "An error occurred while saving your search history:" +
+                            $"\nError: {ex.Message}",
+                            "Program error",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                    }
                 }
             }
         }
@@ -296,7 +304,7 @@ namespace SpotifyContentAvailabilityChecker
             }
 
             TXT_ContentLinkURI.Text = LVW_SearchHistory.SelectedItems[0].SubItems[4].Text;
-            BTN_StartSearch.PerformClick();
+            BTN_StartSearch_Click(sender, e);
         }
 
         private void BTN_ClearSearches_Click(object sender, EventArgs e)
@@ -324,46 +332,45 @@ namespace SpotifyContentAvailabilityChecker
         {
             foreach (ListViewItem item in LVW_SearchHistory.SelectedItems)
             {
-                item.SubItems[0].Text = !string.IsNullOrWhiteSpace(item.SubItems[0].Text) ? "" : "\u2605";
+                item.SubItems[0].Text = string.IsNullOrWhiteSpace(item.SubItems[0].Text) ? "\u2605" : "";
+                _searchCollection[item.Index].Text = item.SubItems[0].Text;
             }
         }
 
         private void TXT_HistorySearch_TextChanged(object sender, EventArgs e)
         {
-            if (_searchCollection != null)
+            if (!CHK_FavoriteSearchOnly.Checked)
             {
-                LVW_SearchHistory.Items.Clear();
-                if (!string.IsNullOrWhiteSpace(TXT_HistorySearch.Text))
+                if (_searchCollection != null)
                 {
-                    switch (CBX_HistorySearchBy.SelectedIndex)
-                    {
-                        case 0:
-                            foreach (ListViewItem item in _searchCollection)
-                            {
-                                if (item.SubItems[1].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
-                                }
-                            }
-                            break;
-                        case 1:
-                            foreach (ListViewItem item in _searchCollection)
-                            {
-                                if (item.SubItems[2].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
-                                {
-                                    LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
-                                }
-                            }
-                            break;
-                    }
+                    FillHistoryApplicationObject(_searchCollection);
                 }
-                else
+            }
+            else
+            {
+                if (_favoriteSearchCollection != null)
                 {
-                    foreach (ListViewItem item in _searchCollection)
+                    FillHistoryApplicationObject(_favoriteSearchCollection);
+                }
+            }
+        }
+
+        private void CHK_FavoriteSearchOnly_CheckedChanged(object sender, EventArgs e)
+        {
+            if (CHK_FavoriteSearchOnly.Checked)
+            {
+                if (_favoriteSearchCollection != null)
+                {
+                    LVW_SearchHistory.Items.Clear();
+                    foreach (ListViewItem item in _favoriteSearchCollection)
                     {
                         LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
                     }
                 }
+            }
+            else
+            {
+                TXT_HistorySearch_TextChanged(sender, e);
             }
         }
 
@@ -390,6 +397,42 @@ namespace SpotifyContentAvailabilityChecker
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
+        }
+
+        private void FillHistoryApplicationObject(ListView.ListViewItemCollection _collection)
+        {
+            LVW_SearchHistory.Items.Clear();
+            if (!string.IsNullOrWhiteSpace(TXT_HistorySearch.Text))
+            {
+                switch (CBX_HistorySearchBy.SelectedIndex)
+                {
+                    case 0:
+                        foreach (ListViewItem item in _collection)
+                        {
+                            if (item.SubItems[1].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
+                            }
+                        }
+                        break;
+                    case 1:
+                        foreach (ListViewItem item in _collection)
+                        {
+                            if (item.SubItems[2].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
+                            }
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                foreach (ListViewItem item in _searchCollection)
+                {
+                    LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
+                }
+            }
         }
 
         private async void FillSongInformation(string id)
@@ -607,6 +650,11 @@ namespace SpotifyContentAvailabilityChecker
                 default:
                     return "Unknown (Not Supported)";
             }
+        }
+
+        private void LVW_SearchHistory_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            BTN_SetFavorite_Click(sender, e);
         }
     }
 }
