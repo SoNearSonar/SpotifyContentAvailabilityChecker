@@ -57,12 +57,37 @@
             this.LBL_Authors = new System.Windows.Forms.Label();
             this.TCRTL_Main = new System.Windows.Forms.TabControl();
             this.TPG_Search = new System.Windows.Forms.TabPage();
+            this.TPG_History = new System.Windows.Forms.TabPage();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.BTN_OpenSearchHistory = new System.Windows.Forms.Button();
+            this.BTN_SetFavorite = new System.Windows.Forms.Button();
+            this.GBX_History = new System.Windows.Forms.GroupBox();
+            this.LVW_SearchHistory = new System.Windows.Forms.ListView();
+            this.CHDR_Favorite = new System.Windows.Forms.ColumnHeader();
+            this.CHDR_Title = new System.Windows.Forms.ColumnHeader();
+            this.CHDR_Author = new System.Windows.Forms.ColumnHeader();
+            this.CHDR_Type = new System.Windows.Forms.ColumnHeader();
+            this.CHDR_Link = new System.Windows.Forms.ColumnHeader();
+            this.GBX_ActionEvents = new System.Windows.Forms.GroupBox();
+            this.BTN_UseSelectedSearch = new System.Windows.Forms.Button();
+            this.BTN_ClearSearches = new System.Windows.Forms.Button();
+            this.GBX_SearchInfo = new System.Windows.Forms.GroupBox();
+            this.CHK_FavoriteSearchOnly = new System.Windows.Forms.CheckBox();
+            this.TXT_HistorySearch = new System.Windows.Forms.TextBox();
+            this.CBX_HistorySearchBy = new System.Windows.Forms.ComboBox();
+            this.LBL_HistorySearchBy = new System.Windows.Forms.Label();
+            this.LBL_HistorySearch = new System.Windows.Forms.Label();
             this.GBX_SpotifyInfo.SuspendLayout();
             this.GBX_Result.SuspendLayout();
             this.GBX_Actions.SuspendLayout();
             this.GBX_ContentInfo.SuspendLayout();
             this.TCRTL_Main.SuspendLayout();
             this.TPG_Search.SuspendLayout();
+            this.TPG_History.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.GBX_History.SuspendLayout();
+            this.GBX_ActionEvents.SuspendLayout();
+            this.GBX_SearchInfo.SuspendLayout();
             this.SuspendLayout();
             // 
             // GBX_SpotifyInfo
@@ -139,7 +164,7 @@
             this.GBX_Result.Controls.Add(this.LBL_SearchBy);
             this.GBX_Result.Controls.Add(this.LBL_SearchInput);
             this.GBX_Result.Controls.Add(this.LVW_CountryResults);
-            this.GBX_Result.Location = new System.Drawing.Point(401, 5);
+            this.GBX_Result.Location = new System.Drawing.Point(400, 5);
             this.GBX_Result.Name = "GBX_Result";
             this.GBX_Result.Size = new System.Drawing.Size(389, 331);
             this.GBX_Result.TabIndex = 1;
@@ -318,14 +343,15 @@
             this.LBL_Authors.AutoSize = true;
             this.LBL_Authors.Location = new System.Drawing.Point(8, 55);
             this.LBL_Authors.Name = "LBL_Authors";
-            this.LBL_Authors.Size = new System.Drawing.Size(52, 15);
+            this.LBL_Authors.Size = new System.Drawing.Size(60, 15);
             this.LBL_Authors.TabIndex = 9;
-            this.LBL_Authors.Text = "Authors:";
+            this.LBL_Authors.Text = "Author(s):";
             // 
             // TCRTL_Main
             // 
             this.TCRTL_Main.Controls.Add(this.TPG_Search);
-            this.TCRTL_Main.Location = new System.Drawing.Point(5, 4);
+            this.TCRTL_Main.Controls.Add(this.TPG_History);
+            this.TCRTL_Main.Location = new System.Drawing.Point(5, 3);
             this.TCRTL_Main.Name = "TCRTL_Main";
             this.TCRTL_Main.SelectedIndex = 0;
             this.TCRTL_Main.Size = new System.Drawing.Size(806, 371);
@@ -345,17 +371,206 @@
             this.TPG_Search.Text = "Search";
             this.TPG_Search.UseVisualStyleBackColor = true;
             // 
+            // TPG_History
+            // 
+            this.TPG_History.Controls.Add(this.groupBox1);
+            this.TPG_History.Controls.Add(this.GBX_History);
+            this.TPG_History.Controls.Add(this.GBX_ActionEvents);
+            this.TPG_History.Controls.Add(this.GBX_SearchInfo);
+            this.TPG_History.Location = new System.Drawing.Point(4, 24);
+            this.TPG_History.Name = "TPG_History";
+            this.TPG_History.Padding = new System.Windows.Forms.Padding(3);
+            this.TPG_History.Size = new System.Drawing.Size(798, 343);
+            this.TPG_History.TabIndex = 1;
+            this.TPG_History.Text = "History";
+            this.TPG_History.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.BTN_OpenSearchHistory);
+            this.groupBox1.Controls.Add(this.BTN_SetFavorite);
+            this.groupBox1.Location = new System.Drawing.Point(599, 5);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(194, 81);
+            this.groupBox1.TabIndex = 15;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Miscellaneous Actions";
+            // 
+            // BTN_OpenSearchHistory
+            // 
+            this.BTN_OpenSearchHistory.Location = new System.Drawing.Point(39, 49);
+            this.BTN_OpenSearchHistory.Name = "BTN_OpenSearchHistory";
+            this.BTN_OpenSearchHistory.Size = new System.Drawing.Size(123, 23);
+            this.BTN_OpenSearchHistory.TabIndex = 5;
+            this.BTN_OpenSearchHistory.Text = "Open History Folder";
+            this.BTN_OpenSearchHistory.UseVisualStyleBackColor = true;
+            this.BTN_OpenSearchHistory.Click += new System.EventHandler(this.BTN_OpenSearchHistory_Click);
+            // 
+            // BTN_SetFavorite
+            // 
+            this.BTN_SetFavorite.Location = new System.Drawing.Point(39, 21);
+            this.BTN_SetFavorite.Name = "BTN_SetFavorite";
+            this.BTN_SetFavorite.Size = new System.Drawing.Size(123, 23);
+            this.BTN_SetFavorite.TabIndex = 4;
+            this.BTN_SetFavorite.Text = "Set Favorite";
+            this.BTN_SetFavorite.UseVisualStyleBackColor = true;
+            this.BTN_SetFavorite.Click += new System.EventHandler(this.BTN_SetFavorite_Click);
+            // 
+            // GBX_History
+            // 
+            this.GBX_History.Controls.Add(this.LVW_SearchHistory);
+            this.GBX_History.Location = new System.Drawing.Point(6, 92);
+            this.GBX_History.Name = "GBX_History";
+            this.GBX_History.Size = new System.Drawing.Size(787, 245);
+            this.GBX_History.TabIndex = 16;
+            this.GBX_History.TabStop = false;
+            this.GBX_History.Text = "History";
+            // 
+            // LVW_SearchHistory
+            // 
+            this.LVW_SearchHistory.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.CHDR_Favorite,
+            this.CHDR_Title,
+            this.CHDR_Author,
+            this.CHDR_Type,
+            this.CHDR_Link});
+            this.LVW_SearchHistory.Location = new System.Drawing.Point(6, 20);
+            this.LVW_SearchHistory.Name = "LVW_SearchHistory";
+            this.LVW_SearchHistory.Size = new System.Drawing.Size(775, 219);
+            this.LVW_SearchHistory.TabIndex = 15;
+            this.LVW_SearchHistory.UseCompatibleStateImageBehavior = false;
+            this.LVW_SearchHistory.View = System.Windows.Forms.View.Details;
+            // 
+            // CHDR_Favorite
+            // 
+            this.CHDR_Favorite.Text = "★";
+            this.CHDR_Favorite.Width = 30;
+            // 
+            // CHDR_Title
+            // 
+            this.CHDR_Title.Text = "Title";
+            this.CHDR_Title.Width = 180;
+            // 
+            // CHDR_Author
+            // 
+            this.CHDR_Author.Text = "Author(s)";
+            this.CHDR_Author.Width = 200;
+            // 
+            // CHDR_Type
+            // 
+            this.CHDR_Type.Text = "Type";
+            this.CHDR_Type.Width = 80;
+            // 
+            // CHDR_Link
+            // 
+            this.CHDR_Link.Text = "Link";
+            this.CHDR_Link.Width = 270;
+            // 
+            // GBX_ActionEvents
+            // 
+            this.GBX_ActionEvents.Controls.Add(this.BTN_UseSelectedSearch);
+            this.GBX_ActionEvents.Controls.Add(this.BTN_ClearSearches);
+            this.GBX_ActionEvents.Location = new System.Drawing.Point(400, 5);
+            this.GBX_ActionEvents.Name = "GBX_ActionEvents";
+            this.GBX_ActionEvents.Size = new System.Drawing.Size(194, 81);
+            this.GBX_ActionEvents.TabIndex = 14;
+            this.GBX_ActionEvents.TabStop = false;
+            this.GBX_ActionEvents.Text = "Search Actions";
+            // 
+            // BTN_UseSelectedSearch
+            // 
+            this.BTN_UseSelectedSearch.Location = new System.Drawing.Point(36, 20);
+            this.BTN_UseSelectedSearch.Name = "BTN_UseSelectedSearch";
+            this.BTN_UseSelectedSearch.Size = new System.Drawing.Size(123, 23);
+            this.BTN_UseSelectedSearch.TabIndex = 4;
+            this.BTN_UseSelectedSearch.Text = "Use Search Info";
+            this.BTN_UseSelectedSearch.UseVisualStyleBackColor = true;
+            this.BTN_UseSelectedSearch.Click += new System.EventHandler(this.BTN_UseSelectedSearch_Click);
+            // 
+            // BTN_ClearSearches
+            // 
+            this.BTN_ClearSearches.Location = new System.Drawing.Point(36, 49);
+            this.BTN_ClearSearches.Name = "BTN_ClearSearches";
+            this.BTN_ClearSearches.Size = new System.Drawing.Size(123, 23);
+            this.BTN_ClearSearches.TabIndex = 3;
+            this.BTN_ClearSearches.Text = "Clear Searches";
+            this.BTN_ClearSearches.UseVisualStyleBackColor = true;
+            this.BTN_ClearSearches.Click += new System.EventHandler(this.BTN_ClearSearches_Click);
+            // 
+            // GBX_SearchInfo
+            // 
+            this.GBX_SearchInfo.Controls.Add(this.CHK_FavoriteSearchOnly);
+            this.GBX_SearchInfo.Controls.Add(this.TXT_HistorySearch);
+            this.GBX_SearchInfo.Controls.Add(this.CBX_HistorySearchBy);
+            this.GBX_SearchInfo.Controls.Add(this.LBL_HistorySearchBy);
+            this.GBX_SearchInfo.Controls.Add(this.LBL_HistorySearch);
+            this.GBX_SearchInfo.Location = new System.Drawing.Point(6, 5);
+            this.GBX_SearchInfo.Name = "GBX_SearchInfo";
+            this.GBX_SearchInfo.Size = new System.Drawing.Size(389, 81);
+            this.GBX_SearchInfo.TabIndex = 1;
+            this.GBX_SearchInfo.TabStop = false;
+            this.GBX_SearchInfo.Text = "Search Information";
+            // 
+            // CHK_FavoriteSearchOnly
+            // 
+            this.CHK_FavoriteSearchOnly.AutoSize = true;
+            this.CHK_FavoriteSearchOnly.Location = new System.Drawing.Point(285, 50);
+            this.CHK_FavoriteSearchOnly.Name = "CHK_FavoriteSearchOnly";
+            this.CHK_FavoriteSearchOnly.Size = new System.Drawing.Size(101, 19);
+            this.CHK_FavoriteSearchOnly.TabIndex = 14;
+            this.CHK_FavoriteSearchOnly.Text = "Favorite Only?";
+            this.CHK_FavoriteSearchOnly.UseVisualStyleBackColor = true;
+            // 
+            // TXT_HistorySearch
+            // 
+            this.TXT_HistorySearch.Location = new System.Drawing.Point(92, 19);
+            this.TXT_HistorySearch.Name = "TXT_HistorySearch";
+            this.TXT_HistorySearch.Size = new System.Drawing.Size(290, 23);
+            this.TXT_HistorySearch.TabIndex = 10;
+            this.TXT_HistorySearch.TextChanged += new System.EventHandler(this.TXT_HistorySearch_TextChanged);
+            // 
+            // CBX_HistorySearchBy
+            // 
+            this.CBX_HistorySearchBy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CBX_HistorySearchBy.FormattingEnabled = true;
+            this.CBX_HistorySearchBy.Items.AddRange(new object[] {
+            "Title",
+            "Author"});
+            this.CBX_HistorySearchBy.Location = new System.Drawing.Point(92, 48);
+            this.CBX_HistorySearchBy.Name = "CBX_HistorySearchBy";
+            this.CBX_HistorySearchBy.Size = new System.Drawing.Size(184, 23);
+            this.CBX_HistorySearchBy.TabIndex = 13;
+            // 
+            // LBL_HistorySearchBy
+            // 
+            this.LBL_HistorySearchBy.AutoSize = true;
+            this.LBL_HistorySearchBy.Location = new System.Drawing.Point(6, 51);
+            this.LBL_HistorySearchBy.Name = "LBL_HistorySearchBy";
+            this.LBL_HistorySearchBy.Size = new System.Drawing.Size(61, 15);
+            this.LBL_HistorySearchBy.TabIndex = 11;
+            this.LBL_HistorySearchBy.Text = "Search By:";
+            // 
+            // LBL_HistorySearch
+            // 
+            this.LBL_HistorySearch.AutoSize = true;
+            this.LBL_HistorySearch.Location = new System.Drawing.Point(6, 22);
+            this.LBL_HistorySearch.Name = "LBL_HistorySearch";
+            this.LBL_HistorySearch.Size = new System.Drawing.Size(76, 15);
+            this.LBL_HistorySearch.TabIndex = 12;
+            this.LBL_HistorySearch.Text = "Search Input:";
+            // 
             // SCAC
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(815, 379);
+            this.ClientSize = new System.Drawing.Size(815, 378);
             this.Controls.Add(this.TCRTL_Main);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(822, 380);
             this.Name = "SCAC";
             this.Text = "Spotify Content Availability Checker";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SCAC_FormClosing);
             this.Load += new System.EventHandler(this.SCAC_Load);
             this.GBX_SpotifyInfo.ResumeLayout(false);
             this.GBX_SpotifyInfo.PerformLayout();
@@ -366,6 +581,12 @@
             this.GBX_ContentInfo.PerformLayout();
             this.TCRTL_Main.ResumeLayout(false);
             this.TPG_Search.ResumeLayout(false);
+            this.TPG_History.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.GBX_History.ResumeLayout(false);
+            this.GBX_ActionEvents.ResumeLayout(false);
+            this.GBX_SearchInfo.ResumeLayout(false);
+            this.GBX_SearchInfo.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -401,5 +622,25 @@
         private TextBox TXT_ContentTypeDisplay;
         private TabControl TCRTL_Main;
         private TabPage TPG_Search;
+        private TabPage TPG_History;
+        private GroupBox GBX_SearchInfo;
+        private TextBox TXT_HistorySearch;
+        private ComboBox CBX_HistorySearchBy;
+        private Label LBL_HistorySearchBy;
+        private Label LBL_HistorySearch;
+        private GroupBox GBX_ActionEvents;
+        private GroupBox GBX_History;
+        private ListView LVW_SearchHistory;
+        private ColumnHeader CHDR_Title;
+        private ColumnHeader CHDR_Author;
+        private ColumnHeader CHDR_Type;
+        private ColumnHeader CHDR_Link;
+        private Button BTN_UseSelectedSearch;
+        private Button BTN_ClearSearches;
+        private GroupBox groupBox1;
+        private Button BTN_SetFavorite;
+        private ColumnHeader CHDR_Favorite;
+        private Button BTN_OpenSearchHistory;
+        private CheckBox CHK_FavoriteSearchOnly;
     }
 }

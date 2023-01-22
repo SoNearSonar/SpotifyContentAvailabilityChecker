@@ -1,20 +1,42 @@
+using Newtonsoft.Json;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
+using System.Diagnostics;
+using System.Text;
 
 namespace SpotifyContentAvailabilityChecker
 {
     public partial class SCAC : Form
     {
+        // Spotify client/object properties
         private EmbedIOAuthServer? _loginServer;
         private SpotifyClient? _client;
         private LoginRequest? _request;
         private FullTrack? _track;
         private FullAlbum? _album;
         private FullShow? _podcast;
-        private CountriesList _countries = new CountriesList();
-        private ListView.ListViewItemCollection _itemCollection;
-        private int _contentSelection;
         private string? _accessToken;
+
+        // Countries dictionary object
+        private CountriesList _countries = new CountriesList();
+
+        // Made for holding searches and contries. Used for searching
+        private ListView.ListViewItemCollection _itemCollection;
+        private ListView.ListViewItemCollection _searchCollection = new ListView.ListViewItemCollection(new ListView());
+
+        // Made for the detection of Spotify content when searching country availability
+        private int _contentSelection;
+
+        // Made for reading and saving the saved search history
+        private static string _dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SCAC");
+        private static string _filePath = Path.Combine(_dirPath, "SearchHistory.json");
+        private List<Search> _searches = new List<Search>();
+
+        // Used for formatting authors and publishers
+        private StringBuilder _builder = new StringBuilder();
+
+        // Made for opening the history location
+        private Process _process;
 
         public SCAC()
         {
@@ -25,10 +47,46 @@ namespace SpotifyContentAvailabilityChecker
         {
             _contentSelection = 0;
             CBX_SearchBy.SelectedIndex = 0;
+            CBX_HistorySearchBy.SelectedIndex = 0;
+
+            // Creating the saved history directory and the process to open it
+            if (!Directory.Exists(_dirPath))
+            {
+                Directory.CreateDirectory(_dirPath);
+            }
+            _process = new Process();
+            _process.StartInfo = new ProcessStartInfo
+            {
+                Arguments = _dirPath,
+                FileName = "explorer.exe"
+            };
+
+            // Reading the saved history file (.json)
+            if (File.Exists(_filePath))
+            {
+                try
+                {
+                    List<Search> searches = JsonConvert.DeserializeObject<List<Search>>(File.ReadAllText(_filePath));
+                    if (searches != null && searches.Count > 0)
+                    {
+                        foreach (Search search in searches)
+                        {
+                            ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, FillAuthorsOfContent(search.Authors), search.Type, search.Link });
+                            LVW_SearchHistory.Items.Add(item);
+                            _searchCollection.Add((ListViewItem)item.Clone());
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+            }
         }
 
         private async void BTN_GetAccessToken_Click(object sender, EventArgs e)
         {
+            // Start a new server that is locally hosted to get a access token
             _loginServer = new EmbedIOAuthServer
             (
                 new Uri("http://localhost:5000/callback"),
@@ -36,9 +94,11 @@ namespace SpotifyContentAvailabilityChecker
             );
             await _loginServer.Start();
 
+            // Event handlers for when it is either successful or a failure
             _loginServer.ImplictGrantReceived += OnAccountUseApproved;
             _loginServer.ErrorReceived += OnAccountUseError;
 
+            // A request using my Spotify application to get a access token
             _request = new LoginRequest
             (
                 _loginServer.BaseUri,
@@ -46,6 +106,64 @@ namespace SpotifyContentAvailabilityChecker
                 LoginRequest.ResponseType.Token
             );
             BrowserUtil.Open(_request.ToUri());
+        }
+
+        private void SCAC_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Try creating the saved history file if it does not exist
+            if (!File.Exists(_filePath))
+            {
+                try
+                {
+                    File.Create(_filePath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show
+                    (
+                        "An error occurred while creating the history save file:" +
+                        $"\nError: {ex.Message}",
+                        "Program error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                }
+            }
+
+            // Add all the current listed searches in the history area to a list for processing
+            if (LVW_SearchHistory.Items.Count > 0)
+            {
+                foreach (ListViewItem item in LVW_SearchHistory.Items)
+                {
+                    List<string> authors = new List<string>();
+                    foreach (string author in item.SubItems[1].Text.Split(','))
+                    {
+                        authors.Add(author);
+                    }
+                    _searches.Add(new Search(item.SubItems[0].Text.Equals("\u2605"), item.SubItems[1].Text, authors, item.SubItems[3].Text, item.SubItems[4].Text));
+                }
+            }
+
+            // Write all the searches from the list to a .json file
+            if (_searches.Count > 0)
+            {
+                string serializedData = JsonConvert.SerializeObject(_searches, Formatting.Indented);
+                try
+                {
+                    File.WriteAllText(_filePath, serializedData);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show
+                    (
+                        "An error occurred while saving your search history:" +
+                        $"\nError: {ex.Message}",
+                        "Program error", 
+                        MessageBoxButtons.OK, 
+                        MessageBoxIcon.Error
+                    );
+                }
+            }
         }
 
         private void BTN_StartSearch_Click(object sender, EventArgs e)
@@ -74,6 +192,7 @@ namespace SpotifyContentAvailabilityChecker
                 return;
             }
 
+            // 0 = Song, 1 = Album, 2 = Podcast (Detected from input)
             string id = GetIDOfContent(TXT_ContentLinkURI.Text);
             switch (_contentSelection)
             {
@@ -135,7 +254,7 @@ namespace SpotifyContentAvailabilityChecker
                         case 0:
                             foreach (ListViewItem item in _itemCollection)
                             {
-                                if (item.Text.Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
+                                if (item.SubItems[0].Text.Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     LVW_CountryResults.Items.Add((ListViewItem)item.Clone());
                                 }
@@ -144,7 +263,7 @@ namespace SpotifyContentAvailabilityChecker
                         case 1:
                             foreach (ListViewItem item in _itemCollection)
                             {
-                                if (_countries.Countries[item.Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
+                                if (_countries.Countries[item.SubItems[1].Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     LVW_CountryResults.Items.Add((ListViewItem)item.Clone());
                                 }
@@ -157,6 +276,92 @@ namespace SpotifyContentAvailabilityChecker
                     foreach (ListViewItem item in _itemCollection)
                     {
                         LVW_CountryResults.Items.Add((ListViewItem)item.Clone());
+                    }
+                }
+            }
+        }
+
+        private void BTN_UseSelectedSearch_Click(object sender, EventArgs e)
+        {
+            if (LVW_SearchHistory.SelectedItems.Count != 1)
+            {
+                MessageBox.Show
+                (
+                    "You cannot select zero (0) or multiple items to use in a search",
+                    "Search selection error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                return;
+            }
+
+            TXT_ContentLinkURI.Text = LVW_SearchHistory.SelectedItems[0].SubItems[4].Text;
+            BTN_StartSearch.PerformClick();
+        }
+
+        private void BTN_ClearSearches_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show
+            (
+                "Are you sure you want to delete your search history?",
+                "Confirm clearing searches",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
+            if (result == DialogResult.Yes)
+            {
+                LVW_SearchHistory.Items.Clear();
+                _searchCollection.Clear();
+            }
+        }
+
+        private void BTN_OpenSearchHistory_Click(object sender, EventArgs e)
+        {
+            _process.Start();
+        }
+
+        private void BTN_SetFavorite_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem item in LVW_SearchHistory.SelectedItems)
+            {
+                item.SubItems[0].Text = !string.IsNullOrWhiteSpace(item.SubItems[0].Text) ? "" : "\u2605";
+            }
+        }
+
+        private void TXT_HistorySearch_TextChanged(object sender, EventArgs e)
+        {
+            if (_searchCollection != null)
+            {
+                LVW_SearchHistory.Items.Clear();
+                if (!string.IsNullOrWhiteSpace(TXT_HistorySearch.Text))
+                {
+                    switch (CBX_HistorySearchBy.SelectedIndex)
+                    {
+                        case 0:
+                            foreach (ListViewItem item in _searchCollection)
+                            {
+                                if (item.SubItems[1].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
+                                }
+                            }
+                            break;
+                        case 1:
+                            foreach (ListViewItem item in _searchCollection)
+                            {
+                                if (item.SubItems[2].Text.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
+                                }
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    foreach (ListViewItem item in _searchCollection)
+                    {
+                        LVW_SearchHistory.Items.Add((ListViewItem)item.Clone());
                     }
                 }
             }
@@ -206,22 +411,13 @@ namespace SpotifyContentAvailabilityChecker
                 return;
             }
 
-            LVW_CountryResults.Items.Clear();
-            TXT_Title.Invoke(() => TXT_Title.Text = _track.Name);
-            TXT_Copyright.Invoke(() => TXT_Copyright.Text = "N/A");
-            TXT_SoundCopyright.Invoke(() => TXT_SoundCopyright.Text = "N/A");
-            foreach (SimpleArtist artist in _track.Artists)
+            if (_track != null)
             {
-                TXT_Authors.Invoke(() => TXT_Authors.Text = $"{artist.Name}, ");
+                string authors = FillAuthorsOfContent(_track.Artists);
+                FillContentInformation(_track.Name, authors, "N/A", "N/A");
+                FillListViewForAvailability(_track.AvailableMarkets);
+                FillSearchHistory(_track.Name, authors, GetContentType(_contentSelection), _track.ExternalUrls["spotify"]);
             }
-            TXT_Authors.Invoke(() => TXT_Authors.Text = TXT_Authors.Text.Substring(0, TXT_Authors.Text.Length - 2));
-
-            foreach (string market in _track.AvailableMarkets)
-            {
-                ListViewItem item = new ListViewItem(new string[] { market, _countries.Countries[market] });
-                LVW_CountryResults.Items.Add(item);
-            }
-            FillItemCollectionObject();
         }
 
         private async void FillAlbumInformation(string id)
@@ -243,22 +439,14 @@ namespace SpotifyContentAvailabilityChecker
                 return;
             }
 
-            LVW_CountryResults.Items.Clear();
-            TXT_Title.Invoke(() => TXT_Title.Text = _album.Name);
-            TXT_Copyright.Invoke(() => TXT_Copyright.Text = _album.Copyrights[0].Text);
-            TXT_SoundCopyright.Invoke(() => TXT_SoundCopyright.Text = _album.Copyrights[1].Text);
-            foreach (SimpleArtist artist in _album.Artists)
+            
+            if (_album != null) 
             {
-                TXT_Authors.Invoke(() => TXT_Authors.Text = $"{artist.Name}, ");
+                string authors = FillAuthorsOfContent(_album.Artists);
+                FillContentInformation(_album.Name, authors, _album.Copyrights[0].Text, _album.Copyrights[1].Text);
+                FillListViewForAvailability(_album.AvailableMarkets);
+                FillSearchHistory(_album.Name, authors, GetContentType(_contentSelection), _album.ExternalUrls["spotify"]);
             }
-            TXT_Authors.Invoke(() => TXT_Authors.Text = TXT_Authors.Text.Substring(0, TXT_Authors.Text.Length - 2));
-
-            foreach (string market in _album.AvailableMarkets)
-            {
-                ListViewItem item = new ListViewItem(new string[] { market, _countries.Countries[market] });
-                LVW_CountryResults.Items.Add(item);
-            }
-            FillItemCollectionObject();
         }
 
         private async void FillPodcastInformation(string id)
@@ -280,18 +468,12 @@ namespace SpotifyContentAvailabilityChecker
                 return;
             }
 
-            LVW_CountryResults.Items.Clear();
-            TXT_Title.Invoke(() => TXT_Title.Text = _podcast.Name);
-            TXT_Copyright.Invoke(() => TXT_Copyright.Text ="N/A");
-            TXT_SoundCopyright.Invoke(() => TXT_SoundCopyright.Text = "N/A");
-            TXT_Authors.Invoke(() => TXT_Authors.Text = _podcast.Publisher);
-
-            foreach (string market in _podcast.AvailableMarkets)
+            if (_podcast != null)
             {
-                ListViewItem item = new ListViewItem(new string[] { market, _countries.Countries[market] });
-                LVW_CountryResults.Items.Add(item);
+                FillContentInformation(_podcast.Name, _podcast.Publisher, "N/A", "N/A");
+                FillListViewForAvailability(_podcast.AvailableMarkets);
+                FillSearchHistory(_podcast.Name, _podcast.Publisher, GetContentType(_contentSelection), _podcast.ExternalUrls["spotify"]);
             }
-            FillItemCollectionObject();
         }
 
         private static string GetIDOfContent(string link)
@@ -302,14 +484,27 @@ namespace SpotifyContentAvailabilityChecker
                 try
                 {
                     int beginIndex = link.LastIndexOf("/") + 1;
-                    int endIndex = link.IndexOf("?si=") - 1;
-                    return link.Substring(beginIndex, endIndex - beginIndex + 1);
+                    if (link.IndexOf("?si=") != -1)
+                    {
+                        int endIndex = link.IndexOf("?si=") - 1;
+                        return link.Substring(beginIndex, endIndex - beginIndex + 1);
+                    }
+                    else
+                    {
+                        return link.Substring(beginIndex);
+                    }
+
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                    MessageBox.Show(
+                    MessageBox.Show
+                    (
                         "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"", "ID error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"",
+                        "ID error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                     return "";
                 }
             }
@@ -325,7 +520,11 @@ namespace SpotifyContentAvailabilityChecker
                 {
                     MessageBox.Show(
                         "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"", "ID error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"", 
+                        "ID error", 
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                     return "";
                 }
             }
@@ -344,6 +543,69 @@ namespace SpotifyContentAvailabilityChecker
             foreach (ListViewItem item in LVW_CountryResults.Items)
             {
                 _itemCollection.Add((ListViewItem)item.Clone());
+            }
+        }
+
+        private void FillContentInformation(string title, string authors, string copyright, string soundCopyright)
+        {
+            LVW_CountryResults.Items.Clear();
+            TXT_Title.Invoke(() => TXT_Title.Text = title);
+            TXT_Copyright.Invoke(() => TXT_Copyright.Text = copyright);
+            TXT_SoundCopyright.Invoke(() => TXT_SoundCopyright.Text = soundCopyright);
+            TXT_Authors.Invoke(() => TXT_Authors.Text = authors);
+            FillItemCollectionObject();
+        }
+
+        private string FillAuthorsOfContent(List<SimpleArtist> artists)
+        {
+            foreach (SimpleArtist artist in artists)
+            {
+                _builder.Append($"{artist.Name}, ");
+            }
+            string authors = _builder.ToString().Substring(0, _builder.Length - 2);
+            _builder.Clear();
+            return authors;
+        }
+
+        private string FillAuthorsOfContent(List<string> artists)
+        {
+            foreach (string artist in artists)
+            {
+                _builder.Append($"{artist}, ");
+            }
+            string authors = _builder.ToString().Substring(0, _builder.Length - 2);
+            _builder.Clear();
+            return authors;
+        }
+
+        private void FillListViewForAvailability(List<string> availableMarkets)
+        {
+            foreach (string market in availableMarkets)
+            {
+                ListViewItem item = new ListViewItem(new string[] { market, _countries.Countries[market] });
+                LVW_CountryResults.Items.Add(item);
+            }
+        }
+
+        private void FillSearchHistory(string title, string author, string contentType, string link)
+        {
+            ListViewItem item = new ListViewItem(new string[] { "", title, author, contentType, link });
+            LVW_SearchHistory.Items.Add(item);
+            _searchCollection.Add((ListViewItem)item.Clone());
+        }
+
+        private static string GetContentType(int contentSelection)
+        {
+            switch (contentSelection)
+            {
+                case 0:
+                    return "Song";
+                case 1:
+                    return "Album";
+                case 2:
+                    return "Podcast";
+                default:
+                    return "Unknown (Not Supported)";
             }
         }
     }
