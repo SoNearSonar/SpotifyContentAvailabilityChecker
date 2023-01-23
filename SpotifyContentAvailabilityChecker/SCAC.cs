@@ -73,7 +73,7 @@ namespace SpotifyContentAvailabilityChecker
                     {
                         foreach (Search search in searches)
                         {
-                            ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, FillAuthorsOfContent(search.Authors), search.Type, search.Link });
+                            ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, FillAuthorsOfContent(search.Authors), search.Type, search.Link, search.Id });
                             LVW_SearchHistory.Items.Add(item);
                             _searchCollection.Add((ListViewItem)item.Clone());
                             if (search.Favorite)
@@ -146,9 +146,20 @@ namespace SpotifyContentAvailabilityChecker
                         List<string> authors = new List<string>();
                         foreach (string author in item.SubItems[2].Text.Split(','))
                         {
-                            authors.Add(author);
+                            authors.Add(author.Trim());
                         }
-                        _searches.Add(new Search(item.SubItems[0].Text.Equals("\u2605"), item.SubItems[1].Text, authors, item.SubItems[3].Text, item.SubItems[4].Text));
+                        _searches.Add
+                        (
+                            new Search
+                            (
+                                item.SubItems[0].Text.Equals("\u2605"),
+                                item.SubItems[1].Text, 
+                                authors,
+                                item.SubItems[3].Text,
+                                item.SubItems[4].Text,
+                                item.SubItems[5].Text
+                            )
+                        );
                     }
                 }
 
@@ -260,6 +271,7 @@ namespace SpotifyContentAvailabilityChecker
         {
             if (_itemCollection != null)
             {
+                MessageBox.Show(_itemCollection.Count.ToString());
                 LVW_CountryResults.Items.Clear();
                 if (!string.IsNullOrWhiteSpace(TXT_SearchInput.Text))
                 {
@@ -329,9 +341,48 @@ namespace SpotifyContentAvailabilityChecker
             }
         }
 
-        private void BTN_OpenSearchHistory_Click(object sender, EventArgs e)
+        private void BTN_ClearSpecificSearch_Click(object sender, EventArgs e)
         {
-            _process.Start();
+            if (LVW_SearchHistory.SelectedItems.Count == 0)
+            {
+                DialogResult result = MessageBox.Show
+                (
+                    "Select an item on the list to delete first",
+                    "Search delete error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                return;
+            }
+
+            bool foundElement = false;
+            if (_searchCollection != null)
+            {
+                foreach (ListViewItem item in _searchCollection)
+                {
+                    foreach (ListViewItem search in LVW_SearchHistory.SelectedItems)
+                    {
+                        if (LVW_SearchHistory.Items[search.Index].SubItems[1].Text.Equals(item.SubItems[1].Text) &&
+                            LVW_SearchHistory.Items[search.Index].SubItems[2].Text.Equals(item.SubItems[2].Text) &&
+                            LVW_SearchHistory.Items[search.Index].SubItems[3].Text.Equals(item.SubItems[3].Text) &&
+                            LVW_SearchHistory.Items[search.Index].SubItems[4].Text.Equals(item.SubItems[4].Text))
+                        {
+                            _searchCollection.RemoveAt(item.Index);
+                            foundElement = true;
+                        }
+                    }
+                }
+            }
+
+            if (foundElement)
+            {
+                FillHistoryApplicationObject(_searchCollection);
+            }
+        }
+
+        private void CBX_HistorySearchBy_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TXT_HistorySearch_TextChanged(sender, e);
         }
 
         private void TXT_HistorySearch_TextChanged(object sender, EventArgs e)
@@ -373,7 +424,8 @@ namespace SpotifyContentAvailabilityChecker
 
         private void LVW_SearchHistory_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SetFavorite();
+            if (CHK_SetFavoriting.Checked)
+                SetFavorite();
         }
 
         private async Task OnAccountUseApproved(object sender, ImplictGrantResponse response) 
@@ -661,7 +713,7 @@ namespace SpotifyContentAvailabilityChecker
 
         private void FillSearchHistory(string title, string author, string contentType, string link)
         {
-            ListViewItem item = new ListViewItem(new string[] { "", title, author, contentType, link });
+            ListViewItem item = new ListViewItem(new string[] { "", title, author, contentType, link, Guid.NewGuid().ToString() });
             LVW_SearchHistory.Items.Add(item);
             _searchCollection.Add((ListViewItem)item.Clone());
         }
