@@ -1,8 +1,8 @@
-﻿namespace SpotifyContentAvailabilityChecker
+﻿namespace SpotifyContentAvailabilityChecker.Helpers
 {
-    class CountriesList
+    public static class CountriesListHelper
     {
-        public Dictionary<string, string> Countries = new Dictionary<string, string>()
+        public static Dictionary<string, string> Countries = new Dictionary<string, string>()
         {
             { "AF", "Afghanistan" },
             { "AX", "Åland Islands" },

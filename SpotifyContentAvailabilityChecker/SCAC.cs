@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
+using SpotifyContentAvailabilityChecker.Helpers;
 using System.Diagnostics;
 using System.Text;
 
@@ -16,9 +17,6 @@ namespace SpotifyContentAvailabilityChecker
         private FullAlbum? _album;
         private FullShow? _podcast;
         private string? _accessToken;
-
-        // Countries dictionary object
-        private CountriesList _countries = new CountriesList();
 
         // Made for holding searches and contries. Used for searching
         private ListView.ListViewItemCollection _itemCollection;
@@ -68,12 +66,15 @@ namespace SpotifyContentAvailabilityChecker
             {
                 try
                 {
+                    // Try to read the .json file's content as a list of searches
                     List<Search> searches = JsonConvert.DeserializeObject<List<Search>>(File.ReadAllText(_filePath));
+
+                    // If the searches exist and there's more than zero (0) add them to the search history display
                     if (searches != null && searches.Count > 0)
                     {
                         foreach (Search search in searches)
                         {
-                            ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, FillAuthorsOfContent(search.Authors), search.Type, search.Link, search.Id });
+                            ListViewItem item = new ListViewItem(new string[] { search.GetFavoriteIcon(search.Favorite), search.Title, SpotifyContentHelper.FillAuthorsOfContent(search.Authors), search.Type, search.Link, search.Id });
                             LVW_SearchHistory.Items.Add(item);
                             _searchCollection.Add((ListViewItem)item.Clone());
                             if (search.Favorite)
@@ -125,14 +126,7 @@ namespace SpotifyContentAvailabilityChecker
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show
-                    (
-                        "An error occurred while creating the history save file:" +
-                        $"\nError: {ex.Message}",
-                        "Program error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                    MessageBoxDisplayHelper.ShowError($"An error occurred while creating the history save file:\nError: {ex.Message}", "Program error");
                 }
             }
 
@@ -173,14 +167,7 @@ namespace SpotifyContentAvailabilityChecker
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show
-                        (
-                            "An error occurred while saving your search history:" +
-                            $"\nError: {ex.Message}",
-                            "Program error",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error
-                        );
+                        MessageBoxDisplayHelper.ShowError($"An error occurred while saving your search history:\nError: {ex.Message}", "Program error");
                     }
                 }
             }
@@ -190,30 +177,17 @@ namespace SpotifyContentAvailabilityChecker
         {
             if (_client == null || string.IsNullOrWhiteSpace(TXT_AccessToken.Text))
             {
-                MessageBox.Show
-                (
-                    "Please get an access token before searching",
-                    "No access token",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError("Please get an access token before searching", "No access token entered");
                 return;
             }
             else if (string.IsNullOrWhiteSpace(TXT_ContentLinkURI.Text))
             {
-                MessageBox.Show
-                (
-                    "Please enter in a valid URL or URI" +
-                    "\nValid content: Songs, Albums, and Podcasts",
-                    "Invalid URL or URI provided",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError("Please enter in a valid URL or URI\nValid content: Songs, Albums, and Podcasts", "Invalid URL or URI provided");
                 return;
             }
 
             // 0 = Song, 1 = Album, 2 = Podcast (Detected from input)
-            string id = GetIDOfContent(TXT_ContentLinkURI.Text);
+            string id = SpotifyContentHelper.GetIDOfContent(TXT_ContentLinkURI.Text);
             switch (_contentSelection)
             {
                 case 0:
@@ -226,14 +200,7 @@ namespace SpotifyContentAvailabilityChecker
                     FillPodcastInformation(id);
                     break;
                 default:
-                    MessageBox.Show
-                    (
-                        "Please enter in a valid URL or URI" +
-                        "\nValid content: Songs, Albums, and Podcasts",
-                        "Invalid URL or URI provided",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                    MessageBoxDisplayHelper.ShowError("Please enter in a valid URL or URI\nValid content: Songs, Albums, and Podcasts", "Invalid URL or URI provided");
                     break;
             }
         }
@@ -289,7 +256,7 @@ namespace SpotifyContentAvailabilityChecker
                         case 1:
                             foreach (ListViewItem item in _itemCollection)
                             {
-                                if (_countries.Countries[item.SubItems[1].Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
+                                if (CountriesListHelper.Countries[item.SubItems[1].Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     LVW_CountryResults.Items.Add((ListViewItem)item.Clone());
                                 }
@@ -327,13 +294,7 @@ namespace SpotifyContentAvailabilityChecker
 
         private void BTN_ClearSearches_Click(object sender, EventArgs e)
         {
-            DialogResult result = MessageBox.Show
-            (
-                "Are you sure you want to delete your search history?",
-                "Confirm clearing searches",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
+            DialogResult result = MessageBoxDisplayHelper.ShowQuestion("Are you sure you want to delete your search history?", "Confirm clearing searches");
             if (result == DialogResult.Yes)
             {
                 LVW_SearchHistory.Items.Clear();
@@ -345,13 +306,7 @@ namespace SpotifyContentAvailabilityChecker
         {
             if (LVW_SearchHistory.SelectedItems.Count == 0)
             {
-                DialogResult result = MessageBox.Show
-                (
-                    "Select an item on the list to delete first",
-                    "Search delete error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError("Select an item on the list to delete first", "Search delete error");
                 return;
             }
 
@@ -442,15 +397,7 @@ namespace SpotifyContentAvailabilityChecker
         private async Task OnAccountUseError(object sender, string error, string errorState)
         {
             await _loginServer.Stop();
-            MessageBox.Show
-            (
-                "There was an error trying to get an access token:" +
-                $"\nError: {error}" +
-                $"\nError state: {errorState}",
-                "Authorization error",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-            );
+            MessageBoxDisplayHelper.ShowError($"There was an error trying to get an access token:\nError: {error}", "Authorization error");
         }
 
         private void SetFavorite()
@@ -518,23 +465,16 @@ namespace SpotifyContentAvailabilityChecker
             }
             catch (Exception ex)
             {
-                MessageBox.Show
-                (
-                    "There was an error trying to get the song." +
-                    $"\n\nError: {ex.Message}",
-                    "Retrieve song error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError($"There was an error trying to get the song.\n\nError: {ex.Message}", "Retrieve song error");
                 return;
             }
 
             if (_track != null)
             {
-                string authors = FillAuthorsOfContent(_track.Artists);
+                string authors = SpotifyContentHelper.FillAuthorsOfContent(_track.Artists);
                 FillContentInformation(_track.Name, authors, "N/A", "N/A");
                 FillListViewForAvailability(_track.AvailableMarkets);
-                FillSearchHistory(_track.Name, authors, GetContentType(_contentSelection), _track.ExternalUrls["spotify"]);
+                FillSearchHistory(_track.Name, authors, SpotifyContentHelper.GetContentType(_contentSelection), _track.ExternalUrls["spotify"]);
             }
         }
 
@@ -546,21 +486,14 @@ namespace SpotifyContentAvailabilityChecker
             }
             catch (Exception ex)
             {
-                MessageBox.Show
-                (
-                    "There was an error trying to get the album." +
-                    $"\n\nError: {ex.Message}",
-                    "Retrieve album error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError($"There was an error trying to get the album.\n\nError: {ex.Message}", "Retrieve album error");
                 return;
             }
 
             
             if (_album != null) 
             {
-                string authors = FillAuthorsOfContent(_album.Artists);
+                string authors = SpotifyContentHelper.FillAuthorsOfContent(_album.Artists);
                 FillContentInformation
                 (
                     _album.Name, 
@@ -569,7 +502,7 @@ namespace SpotifyContentAvailabilityChecker
                     _album.Copyrights.Count == 1 ? _album.Copyrights[0].Text : _album.Copyrights[1].Text
                 );
                 FillListViewForAvailability(_album.AvailableMarkets);
-                FillSearchHistory(_album.Name, authors, GetContentType(_contentSelection), _album.ExternalUrls["spotify"]);
+                FillSearchHistory(_album.Name, authors, SpotifyContentHelper.GetContentType(_contentSelection), _album.ExternalUrls["spotify"]);
             }
         }
 
@@ -581,14 +514,7 @@ namespace SpotifyContentAvailabilityChecker
             }
             catch (Exception ex)
             {
-                MessageBox.Show
-                (
-                    "There was an error trying to get the podcast." +
-                    $"\n\nError: {ex.Message}",
-                    "Retrieve podcast error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                MessageBoxDisplayHelper.ShowError($"There was an error trying to get the podcast.\n\nError: {ex.Message}", "Retrieve podcast error");
                 return;
             }
 
@@ -596,61 +522,7 @@ namespace SpotifyContentAvailabilityChecker
             {
                 FillContentInformation(_podcast.Name, _podcast.Publisher, "N/A", "N/A");
                 FillListViewForAvailability(_podcast.AvailableMarkets);
-                FillSearchHistory(_podcast.Name, _podcast.Publisher, GetContentType(_contentSelection), _podcast.ExternalUrls["spotify"]);
-            }
-        }
-
-        private static string GetIDOfContent(string link)
-        {
-            // If the content is a link (i.e.: https://open.spotify.com/track/35tlXmLyuczxvxdLiQfpNu?si=5c57d6e768584bab)
-            if (link.IndexOf("http") != -1)
-            {
-                try
-                {
-                    int beginIndex = link.LastIndexOf("/") + 1;
-                    if (link.IndexOf("?si=") != -1)
-                    {
-                        int endIndex = link.IndexOf("?si=") - 1;
-                        return link.Substring(beginIndex, endIndex - beginIndex + 1);
-                    }
-                    else
-                    {
-                        return link.Substring(beginIndex);
-                    }
-
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    MessageBox.Show
-                    (
-                        "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"",
-                        "ID error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
-                    return "";
-                }
-            }
-            // If the content is a URI (i.e.: spotify:track:35tlXmLyuczxvxdLiQfpNu)
-            else
-            {
-                try
-                {
-                    int beginIndex = link.LastIndexOf(":") + 1;
-                    return link.Substring(beginIndex);
-                }
-                catch (ArgumentOutOfRangeException)
-                {
-                    MessageBox.Show(
-                        "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"", 
-                        "ID error", 
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
-                    return "";
-                }
+                FillSearchHistory(_podcast.Name, _podcast.Publisher, SpotifyContentHelper.GetContentType(_contentSelection), _podcast.ExternalUrls["spotify"]);
             }
         }
 
@@ -680,33 +552,13 @@ namespace SpotifyContentAvailabilityChecker
             FillItemCollectionObject();
         }
 
-        private string FillAuthorsOfContent(List<SimpleArtist> artists)
-        {
-            foreach (SimpleArtist artist in artists)
-            {
-                _builder.Append($"{artist.Name}, ");
-            }
-            string authors = _builder.ToString().Substring(0, _builder.Length - 2);
-            _builder.Clear();
-            return authors;
-        }
-
-        private string FillAuthorsOfContent(List<string> artists)
-        {
-            foreach (string artist in artists)
-            {
-                _builder.Append($"{artist}, ");
-            }
-            string authors = _builder.ToString().Substring(0, _builder.Length - 2);
-            _builder.Clear();
-            return authors;
-        }
+        
 
         private void FillListViewForAvailability(List<string> availableMarkets)
         {
             foreach (string market in availableMarkets)
             {
-                ListViewItem item = new ListViewItem(new string[] { market, _countries.Countries[market] });
+                ListViewItem item = new ListViewItem(new string[] { market, CountriesListHelper.Countries[market] });
                 LVW_CountryResults.Items.Add(item);
             }
         }
@@ -716,21 +568,6 @@ namespace SpotifyContentAvailabilityChecker
             ListViewItem item = new ListViewItem(new string[] { "", title, author, contentType, link, Guid.NewGuid().ToString() });
             LVW_SearchHistory.Items.Add(item);
             _searchCollection.Add((ListViewItem)item.Clone());
-        }
-
-        private static string GetContentType(int contentSelection)
-        {
-            switch (contentSelection)
-            {
-                case 0:
-                    return "Song";
-                case 1:
-                    return "Album";
-                case 2:
-                    return "Podcast";
-                default:
-                    return "Unknown (Not Supported)";
-            }
         }
     }
 }
