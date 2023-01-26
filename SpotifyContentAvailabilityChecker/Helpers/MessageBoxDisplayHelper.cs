@@ -1,5 +1,4 @@
-﻿
-namespace SpotifyContentAvailabilityChecker.Helpers
+﻿namespace SpotifyContentAvailabilityChecker.Helpers
 {
     public static class MessageBoxDisplayHelper
     {

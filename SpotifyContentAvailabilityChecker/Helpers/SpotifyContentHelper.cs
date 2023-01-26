@@ -6,6 +6,7 @@ namespace SpotifyContentAvailabilityChecker.Helpers
     public static class SpotifyContentHelper
     {
         private static StringBuilder _builder = new StringBuilder();
+
         public static string GetContentType(int contentSelection)
         {
             switch (contentSelection)
@@ -42,14 +43,7 @@ namespace SpotifyContentAvailabilityChecker.Helpers
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                    MessageBox.Show
-                    (
-                        "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"",
-                        "ID error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                    MessageBoxDisplayHelper.ShowError("The information you have provided cannot be converted into an ID\n\nOn Spotify content, click \"Copy (Song, Album, Podcast) Link\"", "ID error");
                     return "";
                 }
             }
@@ -63,13 +57,7 @@ namespace SpotifyContentAvailabilityChecker.Helpers
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                    MessageBox.Show(
-                        "The information you have provided cannot be converted into an ID\n\n" +
-                        "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"",
-                        "ID error",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
+                    MessageBoxDisplayHelper.ShowError("The information you have provided cannot be converted into an ID\n\n" + "On Spotify content, click \"Copy (Song, Album, Podcast) Link\"", "ID error");
                     return "";
                 }
             }
