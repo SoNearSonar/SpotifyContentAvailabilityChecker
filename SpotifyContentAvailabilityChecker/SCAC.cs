@@ -15,19 +15,17 @@ namespace SpotifyContentAvailabilityChecker
         private EmbedIOAuthServer? _loginServer;
         private SpotifyClient? _client;
         private LoginRequest? _request;
-        private string? _accessToken;
 
-        // Made for holding searches and contries. Used for searching
+        // Made for holding contries. Used for searching
         private ListView.ListViewItemCollection _itemCollection;
+
+        private Dictionary<string, string> _countryCollection;
 
         // Made for the detection of Spotify content when searching country availability
         private int _contentSelection;
 
         // Made for reading and saving the saved search history
         private List<Search> _searches = new List<Search>();
-
-        // Made for opening the history location
-        private Process _process;
 
         public SCAC()
         {
@@ -47,7 +45,6 @@ namespace SpotifyContentAvailabilityChecker
             {
                 Directory.CreateDirectory(ProcessStarterHelper.DirPath);
             }
-            _process = ProcessStarterHelper.CreateProcess(ProcessStarterHelper.DirPath, "explorer.exe");
 
             // Reading the saved history file (.json)
             if (File.Exists(ProcessStarterHelper.FilePath))
@@ -71,30 +68,6 @@ namespace SpotifyContentAvailabilityChecker
 
                 }
             }
-        }
-
-        private async void BTN_GetAccessToken_Click(object sender, EventArgs e)
-        {
-            // Start a new server that is locally hosted to get a access token
-            _loginServer = new EmbedIOAuthServer
-            (
-                new Uri("http://localhost:5000/callback"),
-                5000
-            );
-            await _loginServer.Start();
-
-            // Event handlers for when it is either successful or a failure
-            _loginServer.ImplictGrantReceived += OnAccountUseApproved;
-            _loginServer.ErrorReceived += OnAccountUseError;
-
-            // A request using my Spotify application to get a access token
-            _request = new LoginRequest
-            (
-                _loginServer.BaseUri,
-                "4f8281c491f244d0a4b2058dbb4587a6",
-                LoginRequest.ResponseType.Token
-            );
-            BrowserUtil.Open(_request.ToUri());
         }
 
         private void SCAC_FormClosing(object sender, FormClosingEventArgs e)
@@ -123,6 +96,30 @@ namespace SpotifyContentAvailabilityChecker
             {
                 MessageBoxDisplayHelper.ShowError($"An error occurred while saving your search history:\nError: {ex.Message}", "Program error");
             }
+        }
+
+        private async void BTN_GetAccessToken_Click(object sender, EventArgs e)
+        {
+            // Start a new server that is locally hosted to get a access token
+            _loginServer = new EmbedIOAuthServer
+            (
+                new Uri("http://localhost:5000/callback"),
+                5000
+            );
+            await _loginServer.Start();
+
+            // Event handlers for when it is either successful or a failure
+            _loginServer.ImplictGrantReceived += OnAccountUseApproved;
+            _loginServer.ErrorReceived += OnAccountUseError;
+
+            // A request using my Spotify application to get a access token
+            _request = new LoginRequest
+            (
+                _loginServer.BaseUri,
+                "4f8281c491f244d0a4b2058dbb4587a6",
+                LoginRequest.ResponseType.Token
+            );
+            BrowserUtil.Open(_request.ToUri());
         }
 
         private void BTN_StartSearch_Click(object sender, EventArgs e)
@@ -285,21 +282,7 @@ namespace SpotifyContentAvailabilityChecker
 
         private void CHK_FavoriteSearchOnly_CheckedChanged(object sender, EventArgs e)
         {
-            if (CHK_FavoriteSearchOnly.Checked)
-            {
-                LVW_SearchHistory.Items.Clear();
-                foreach (Search search in _searches)
-                {
-                    if (search.Favorite)
-                    {
-                        InsertSearchItem(search);
-                    }
-                }
-            }
-            else
-            {
-                TXT_HistorySearch_TextChanged(sender, e);
-            }
+            TXT_HistorySearch_TextChanged(sender, e);
         }
 
         private void LVW_SearchHistory_SelectedIndexChanged(object sender, EventArgs e)
@@ -311,7 +294,7 @@ namespace SpotifyContentAvailabilityChecker
         private async Task OnAccountUseApproved(object sender, ImplictGrantResponse response) 
         {
             await _loginServer.Stop();
-            _accessToken = response.AccessToken;
+            string _accessToken = response.AccessToken;
             _client = new SpotifyClient(_accessToken);
             TXT_AccessToken.Invoke
             (
@@ -331,19 +314,21 @@ namespace SpotifyContentAvailabilityChecker
             {
                 item.SubItems[1].Text = string.IsNullOrWhiteSpace(item.SubItems[1].Text) ? "\u2605" : "";
                 Search? search = _searches.Find(search => search.Id.Equals(item.SubItems[0].Text));
-                if (string.IsNullOrWhiteSpace(item.SubItems[1].Text))
+                if (search != null)
                 {
-                    _searches[_searches.IndexOf(search)].Favorite = false;
-                    if (CHK_FavoriteSearchOnly.Checked)
+                    if (string.IsNullOrWhiteSpace(item.SubItems[1].Text))
                     {
-                        LVW_SearchHistory.Items.Remove(item);
+                        _searches[_searches.IndexOf(search)].Favorite = false;
+                        if (CHK_FavoriteSearchOnly.Checked)
+                        {
+                            LVW_SearchHistory.Items.Remove(item);
+                        }
+                    }
+                    else
+                    {
+                        _searches[_searches.IndexOf(search)].Favorite = true;
                     }
                 }
-                else
-                {
-                    _searches[_searches.IndexOf(search)].Favorite = true;
-                }
-                
             }
         }
 
@@ -355,20 +340,46 @@ namespace SpotifyContentAvailabilityChecker
                 switch (CBX_HistorySearchBy.SelectedIndex)
                 {
                     case 0:
-                        foreach (Search search in searches)
+                        if (CHK_FavoriteSearchOnly.Checked)
                         {
-                            if (search.Title.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                            foreach (Search search in searches)
                             {
-                                InsertSearchItem(search);
+                                if (CheckSearchInput(search.Title, TXT_HistorySearch.Text) && search.Favorite)
+                                {
+                                    InsertSearchItem(search);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (Search search in searches)
+                            {
+                                if (CheckSearchInput(search.Title, TXT_HistorySearch.Text))
+                                {
+                                    InsertSearchItem(search);
+                                }
                             }
                         }
                         break;
                     case 1:
-                        foreach (Search search in searches)
+                        if (CHK_FavoriteSearchOnly.Checked)
                         {
-                            if (search.Authors.Contains(TXT_HistorySearch.Text, StringComparison.InvariantCultureIgnoreCase))
+                            foreach (Search search in searches)
                             {
-                                InsertSearchItem(search);
+                                if (CheckSearchInput(search.Authors, TXT_HistorySearch.Text) && search.Favorite)
+                                {
+                                    InsertSearchItem(search);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            foreach (Search search in searches)
+                            {
+                                if (CheckSearchInput(search.Authors, TXT_HistorySearch.Text))
+                                {
+                                    InsertSearchItem(search);
+                                }
                             }
                         }
                         break;
@@ -514,6 +525,11 @@ namespace SpotifyContentAvailabilityChecker
         {
             ListViewItem item = new ListViewItem(new string[] { search.Id, search.GetFavoriteIcon(), search.Title, search.Authors, search.Type, search.Link });
             LVW_SearchHistory.Items.Add(item);
+        }
+
+        private bool CheckSearchInput(string search, string filter)
+        {
+            return search.Contains(filter, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
