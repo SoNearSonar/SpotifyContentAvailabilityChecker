@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SCAC));
             this.GBX_SpotifyInfo = new System.Windows.Forms.GroupBox();
             this.TXT_ContentTypeDisplay = new System.Windows.Forms.TextBox();
             this.TXT_AccessToken = new System.Windows.Forms.TextBox();
@@ -614,6 +615,7 @@
             this.ClientSize = new System.Drawing.Size(818, 405);
             this.Controls.Add(this.TCRTL_Main);
             this.Controls.Add(this.MNSTRP_Settings);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MNSTRP_Settings;
             this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(833, 444);
