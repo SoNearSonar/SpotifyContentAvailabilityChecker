@@ -615,6 +615,7 @@
             this.ClientSize = new System.Drawing.Size(818, 405);
             this.Controls.Add(this.TCRTL_Main);
             this.Controls.Add(this.MNSTRP_Settings);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.MNSTRP_Settings;
             this.MaximizeBox = false;
