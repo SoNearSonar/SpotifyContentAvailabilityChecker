@@ -10,7 +10,7 @@
 ![image](https://user-images.githubusercontent.com/122957887/215128627-f0a554f6-eba3-4766-9d72-9dc7b95efb9d.png)
 
 ### Settings:
-![image](https://user-images.githubusercontent.com/122957887/215128735-1b73c569-fa63-4e98-9d91-f3058341a4ad.png)
+![image](https://user-images.githubusercontent.com/122957887/215211456-5d6fdf21-a3c1-4694-8f93-f802cc759e8a.png)
 
 
 ## Features:
