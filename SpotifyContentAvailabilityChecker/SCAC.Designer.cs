@@ -431,31 +431,37 @@
             // 
             // CHDR_Id
             // 
+            this.CHDR_Id.DisplayIndex = 5;
             this.CHDR_Id.Text = "Id";
             this.CHDR_Id.Width = 0;
             // 
             // CHDR_Favorite
             // 
+            this.CHDR_Favorite.DisplayIndex = 0;
             this.CHDR_Favorite.Text = "★";
             this.CHDR_Favorite.Width = 30;
             // 
             // CHDR_Title
             // 
+            this.CHDR_Title.DisplayIndex = 1;
             this.CHDR_Title.Text = "Title";
             this.CHDR_Title.Width = 180;
             // 
             // CHDR_Author
             // 
+            this.CHDR_Author.DisplayIndex = 2;
             this.CHDR_Author.Text = "Author(s)";
             this.CHDR_Author.Width = 200;
             // 
             // CHDR_Type
             // 
+            this.CHDR_Type.DisplayIndex = 3;
             this.CHDR_Type.Text = "Type";
             this.CHDR_Type.Width = 80;
             // 
             // CHDR_Link
             // 
+            this.CHDR_Link.DisplayIndex = 4;
             this.CHDR_Link.Text = "Link";
             this.CHDR_Link.Width = 270;
             // 
