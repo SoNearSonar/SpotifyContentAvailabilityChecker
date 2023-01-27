@@ -42,6 +42,7 @@ namespace SpotifyContentAvailabilityChecker
             CHK_SetFavoriting.Checked = Properties.Settings.Default.SetFavoriting;
             LVW_CountryResults.GridLines = Properties.Settings.Default.ShowGridLines;
             LVW_SearchHistory.GridLines = Properties.Settings.Default.ShowGridLines;
+            TCRTL_Main.SelectedIndex = Properties.Settings.Default.SelectedTabIndex;
 
             // Creating the saved history directory and the process to open it
             if (!Directory.Exists(ProcessStarterHelper.DirPath))
@@ -108,6 +109,7 @@ namespace SpotifyContentAvailabilityChecker
             Properties.Settings.Default.HistorySearchBy = CBX_SearchBy.SelectedIndex;
             Properties.Settings.Default.SearchFavorites = CHK_FavoriteSearchOnly.Checked;
             Properties.Settings.Default.SetFavoriting = CHK_SetFavoriting.Checked;
+            Properties.Settings.Default.SelectedTabIndex = TCRTL_Main.SelectedIndex;
             Properties.Settings.Default.Save();
         }
 
