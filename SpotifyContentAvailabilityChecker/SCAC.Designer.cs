@@ -61,12 +61,12 @@
             this.TPG_History = new System.Windows.Forms.TabPage();
             this.GBX_History = new System.Windows.Forms.GroupBox();
             this.LVW_SearchHistory = new System.Windows.Forms.ListView();
+            this.CHDR_Id = new System.Windows.Forms.ColumnHeader();
             this.CHDR_Favorite = new System.Windows.Forms.ColumnHeader();
             this.CHDR_Title = new System.Windows.Forms.ColumnHeader();
             this.CHDR_Author = new System.Windows.Forms.ColumnHeader();
             this.CHDR_Type = new System.Windows.Forms.ColumnHeader();
             this.CHDR_Link = new System.Windows.Forms.ColumnHeader();
-            this.CHDR_Id = new System.Windows.Forms.ColumnHeader();
             this.GBX_ActionEvents = new System.Windows.Forms.GroupBox();
             this.BTN_ClearSpecificSearch = new System.Windows.Forms.Button();
             this.CHK_SetFavoriting = new System.Windows.Forms.CheckBox();
@@ -78,6 +78,9 @@
             this.CBX_HistorySearchBy = new System.Windows.Forms.ComboBox();
             this.LBL_HistorySearchBy = new System.Windows.Forms.Label();
             this.LBL_HistorySearch = new System.Windows.Forms.Label();
+            this.MNSTRP_Settings = new System.Windows.Forms.MenuStrip();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.MNUITM_OpenSettings = new System.Windows.Forms.ToolStripMenuItem();
             this.GBX_SpotifyInfo.SuspendLayout();
             this.GBX_Result.SuspendLayout();
             this.GBX_Actions.SuspendLayout();
@@ -88,6 +91,7 @@
             this.GBX_History.SuspendLayout();
             this.GBX_ActionEvents.SuspendLayout();
             this.GBX_SearchInfo.SuspendLayout();
+            this.MNSTRP_Settings.SuspendLayout();
             this.SuspendLayout();
             // 
             // GBX_SpotifyInfo
@@ -167,7 +171,7 @@
             this.GBX_Result.Location = new System.Drawing.Point(400, 5);
             this.GBX_Result.Name = "GBX_Result";
             this.GBX_Result.Size = new System.Drawing.Size(389, 331);
-            this.GBX_Result.TabIndex = 19;
+            this.GBX_Result.TabIndex = 20;
             this.GBX_Result.TabStop = false;
             this.GBX_Result.Text = "Result";
             // 
@@ -176,7 +180,7 @@
             this.TXT_SearchInput.Location = new System.Drawing.Point(99, 20);
             this.TXT_SearchInput.Name = "TXT_SearchInput";
             this.TXT_SearchInput.Size = new System.Drawing.Size(284, 23);
-            this.TXT_SearchInput.TabIndex = 21;
+            this.TXT_SearchInput.TabIndex = 22;
             this.TXT_SearchInput.TextChanged += new System.EventHandler(this.TXT_SearchInput_TextChanged);
             // 
             // CBX_SearchBy
@@ -189,7 +193,7 @@
             this.CBX_SearchBy.Location = new System.Drawing.Point(99, 49);
             this.CBX_SearchBy.Name = "CBX_SearchBy";
             this.CBX_SearchBy.Size = new System.Drawing.Size(284, 23);
-            this.CBX_SearchBy.TabIndex = 23;
+            this.CBX_SearchBy.TabIndex = 24;
             // 
             // LBL_SearchBy
             // 
@@ -197,7 +201,7 @@
             this.LBL_SearchBy.Location = new System.Drawing.Point(6, 52);
             this.LBL_SearchBy.Name = "LBL_SearchBy";
             this.LBL_SearchBy.Size = new System.Drawing.Size(61, 15);
-            this.LBL_SearchBy.TabIndex = 22;
+            this.LBL_SearchBy.TabIndex = 23;
             this.LBL_SearchBy.Text = "Search By:";
             // 
             // LBL_SearchInput
@@ -206,7 +210,7 @@
             this.LBL_SearchInput.Location = new System.Drawing.Point(6, 23);
             this.LBL_SearchInput.Name = "LBL_SearchInput";
             this.LBL_SearchInput.Size = new System.Drawing.Size(76, 15);
-            this.LBL_SearchInput.TabIndex = 20;
+            this.LBL_SearchInput.TabIndex = 21;
             this.LBL_SearchInput.Text = "Search Input:";
             // 
             // LVW_CountryResults
@@ -218,7 +222,7 @@
             this.LVW_CountryResults.Location = new System.Drawing.Point(6, 79);
             this.LVW_CountryResults.Name = "LVW_CountryResults";
             this.LVW_CountryResults.Size = new System.Drawing.Size(377, 240);
-            this.LVW_CountryResults.TabIndex = 24;
+            this.LVW_CountryResults.TabIndex = 25;
             this.LVW_CountryResults.UseCompatibleStateImageBehavior = false;
             this.LVW_CountryResults.View = System.Windows.Forms.View.Details;
             // 
@@ -287,7 +291,7 @@
             this.GBX_ContentInfo.Location = new System.Drawing.Point(6, 191);
             this.GBX_ContentInfo.Name = "GBX_ContentInfo";
             this.GBX_ContentInfo.Size = new System.Drawing.Size(389, 145);
-            this.GBX_ContentInfo.TabIndex = 10;
+            this.GBX_ContentInfo.TabIndex = 11;
             this.GBX_ContentInfo.TabStop = false;
             this.GBX_ContentInfo.Text = "Content Information";
             // 
@@ -297,7 +301,7 @@
             this.TXT_SoundCopyright.Name = "TXT_SoundCopyright";
             this.TXT_SoundCopyright.ReadOnly = true;
             this.TXT_SoundCopyright.Size = new System.Drawing.Size(258, 23);
-            this.TXT_SoundCopyright.TabIndex = 18;
+            this.TXT_SoundCopyright.TabIndex = 19;
             // 
             // LBL_SoundCopyright
             // 
@@ -305,7 +309,7 @@
             this.LBL_SoundCopyright.Location = new System.Drawing.Point(8, 113);
             this.LBL_SoundCopyright.Name = "LBL_SoundCopyright";
             this.LBL_SoundCopyright.Size = new System.Drawing.Size(100, 15);
-            this.LBL_SoundCopyright.TabIndex = 17;
+            this.LBL_SoundCopyright.TabIndex = 18;
             this.LBL_SoundCopyright.Text = "Sound Copyright:";
             // 
             // TXT_Authors
@@ -314,7 +318,7 @@
             this.TXT_Authors.Name = "TXT_Authors";
             this.TXT_Authors.ReadOnly = true;
             this.TXT_Authors.Size = new System.Drawing.Size(258, 23);
-            this.TXT_Authors.TabIndex = 14;
+            this.TXT_Authors.TabIndex = 15;
             // 
             // TXT_Copyright
             // 
@@ -322,7 +326,7 @@
             this.TXT_Copyright.Name = "TXT_Copyright";
             this.TXT_Copyright.ReadOnly = true;
             this.TXT_Copyright.Size = new System.Drawing.Size(258, 23);
-            this.TXT_Copyright.TabIndex = 16;
+            this.TXT_Copyright.TabIndex = 17;
             // 
             // LBL_Copyright
             // 
@@ -330,7 +334,7 @@
             this.LBL_Copyright.Location = new System.Drawing.Point(8, 84);
             this.LBL_Copyright.Name = "LBL_Copyright";
             this.LBL_Copyright.Size = new System.Drawing.Size(63, 15);
-            this.LBL_Copyright.TabIndex = 15;
+            this.LBL_Copyright.TabIndex = 16;
             this.LBL_Copyright.Text = "Copyright:";
             // 
             // TXT_Title
@@ -339,7 +343,7 @@
             this.TXT_Title.Name = "TXT_Title";
             this.TXT_Title.ReadOnly = true;
             this.TXT_Title.Size = new System.Drawing.Size(258, 23);
-            this.TXT_Title.TabIndex = 12;
+            this.TXT_Title.TabIndex = 13;
             // 
             // LBL_Title
             // 
@@ -347,7 +351,7 @@
             this.LBL_Title.Location = new System.Drawing.Point(8, 26);
             this.LBL_Title.Name = "LBL_Title";
             this.LBL_Title.Size = new System.Drawing.Size(32, 15);
-            this.LBL_Title.TabIndex = 11;
+            this.LBL_Title.TabIndex = 12;
             this.LBL_Title.Text = "Title:";
             // 
             // LBL_Authors
@@ -356,18 +360,18 @@
             this.LBL_Authors.Location = new System.Drawing.Point(8, 55);
             this.LBL_Authors.Name = "LBL_Authors";
             this.LBL_Authors.Size = new System.Drawing.Size(60, 15);
-            this.LBL_Authors.TabIndex = 13;
+            this.LBL_Authors.TabIndex = 14;
             this.LBL_Authors.Text = "Author(s):";
             // 
             // TCRTL_Main
             // 
             this.TCRTL_Main.Controls.Add(this.TPG_Search);
             this.TCRTL_Main.Controls.Add(this.TPG_History);
-            this.TCRTL_Main.Location = new System.Drawing.Point(5, 3);
+            this.TCRTL_Main.Location = new System.Drawing.Point(7, 28);
             this.TCRTL_Main.Name = "TCRTL_Main";
             this.TCRTL_Main.SelectedIndex = 0;
             this.TCRTL_Main.Size = new System.Drawing.Size(806, 371);
-            this.TCRTL_Main.TabIndex = 50;
+            this.TCRTL_Main.TabIndex = 39;
             // 
             // TPG_Search
             // 
@@ -422,43 +426,38 @@
             this.LVW_SearchHistory.TabIndex = 37;
             this.LVW_SearchHistory.UseCompatibleStateImageBehavior = false;
             this.LVW_SearchHistory.View = System.Windows.Forms.View.Details;
+            this.LVW_SearchHistory.ColumnWidthChanging += new System.Windows.Forms.ColumnWidthChangingEventHandler(this.LVW_SearchHistory_ColumnWidthChanging);
             this.LVW_SearchHistory.SelectedIndexChanged += new System.EventHandler(this.LVW_SearchHistory_SelectedIndexChanged);
+            // 
+            // CHDR_Id
+            // 
+            this.CHDR_Id.Text = "Id";
+            this.CHDR_Id.Width = 0;
             // 
             // CHDR_Favorite
             // 
-            this.CHDR_Favorite.DisplayIndex = 0;
             this.CHDR_Favorite.Text = "★";
             this.CHDR_Favorite.Width = 30;
             // 
             // CHDR_Title
             // 
-            this.CHDR_Title.DisplayIndex = 1;
             this.CHDR_Title.Text = "Title";
             this.CHDR_Title.Width = 180;
             // 
             // CHDR_Author
             // 
-            this.CHDR_Author.DisplayIndex = 2;
             this.CHDR_Author.Text = "Author(s)";
             this.CHDR_Author.Width = 200;
             // 
             // CHDR_Type
             // 
-            this.CHDR_Type.DisplayIndex = 3;
             this.CHDR_Type.Text = "Type";
             this.CHDR_Type.Width = 80;
             // 
             // CHDR_Link
             // 
-            this.CHDR_Link.DisplayIndex = 4;
             this.CHDR_Link.Text = "Link";
             this.CHDR_Link.Width = 270;
-            // 
-            // CHDR_Id
-            // 
-            this.CHDR_Id.DisplayIndex = 5;
-            this.CHDR_Id.Text = "Id";
-            this.CHDR_Id.Width = 0;
             // 
             // GBX_ActionEvents
             // 
@@ -478,7 +477,7 @@
             this.BTN_ClearSpecificSearch.Location = new System.Drawing.Point(83, 47);
             this.BTN_ClearSpecificSearch.Name = "BTN_ClearSpecificSearch";
             this.BTN_ClearSpecificSearch.Size = new System.Drawing.Size(113, 23);
-            this.BTN_ClearSpecificSearch.TabIndex = 36;
+            this.BTN_ClearSpecificSearch.TabIndex = 34;
             this.BTN_ClearSpecificSearch.Text = "Clear Search";
             this.BTN_ClearSpecificSearch.UseVisualStyleBackColor = true;
             this.BTN_ClearSpecificSearch.Click += new System.EventHandler(this.BTN_ClearSpecificSearch_Click);
@@ -523,7 +522,7 @@
             this.GBX_SearchInfo.Location = new System.Drawing.Point(6, 5);
             this.GBX_SearchInfo.Name = "GBX_SearchInfo";
             this.GBX_SearchInfo.Size = new System.Drawing.Size(389, 81);
-            this.GBX_SearchInfo.TabIndex = 25;
+            this.GBX_SearchInfo.TabIndex = 26;
             this.GBX_SearchInfo.TabStop = false;
             this.GBX_SearchInfo.Text = "Search Information";
             // 
@@ -577,15 +576,41 @@
             this.LBL_HistorySearch.TabIndex = 26;
             this.LBL_HistorySearch.Text = "Search Input:";
             // 
+            // MNSTRP_Settings
+            // 
+            this.MNSTRP_Settings.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.settingsToolStripMenuItem});
+            this.MNSTRP_Settings.Location = new System.Drawing.Point(0, 0);
+            this.MNSTRP_Settings.Name = "MNSTRP_Settings";
+            this.MNSTRP_Settings.Size = new System.Drawing.Size(818, 24);
+            this.MNSTRP_Settings.TabIndex = 38;
+            this.MNSTRP_Settings.Text = "menuStrip1";
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MNUITM_OpenSettings});
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            // 
+            // MNUITM_OpenSettings
+            // 
+            this.MNUITM_OpenSettings.Name = "MNUITM_OpenSettings";
+            this.MNUITM_OpenSettings.Size = new System.Drawing.Size(148, 22);
+            this.MNUITM_OpenSettings.Text = "Open Settings";
+            this.MNUITM_OpenSettings.Click += new System.EventHandler(this.MNUITM_OpenSettings_Click);
+            // 
             // SCAC
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(815, 378);
+            this.ClientSize = new System.Drawing.Size(818, 405);
             this.Controls.Add(this.TCRTL_Main);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Controls.Add(this.MNSTRP_Settings);
+            this.MainMenuStrip = this.MNSTRP_Settings;
             this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(822, 380);
+            this.MinimumSize = new System.Drawing.Size(833, 444);
             this.Name = "SCAC";
             this.Text = "Spotify Content Availability Checker";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SCAC_FormClosing);
@@ -605,7 +630,10 @@
             this.GBX_ActionEvents.PerformLayout();
             this.GBX_SearchInfo.ResumeLayout(false);
             this.GBX_SearchInfo.PerformLayout();
+            this.MNSTRP_Settings.ResumeLayout(false);
+            this.MNSTRP_Settings.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -626,7 +654,6 @@
         private ComboBox CBX_SearchBy;
         private Label LBL_SearchBy;
         private Label LBL_SearchInput;
-        private ListView LVW_CountryResults;
         private ColumnHeader CH_CountryCode;
         private ColumnHeader CH_CountryName;
         private TextBox TXT_SoundCopyright;
@@ -648,7 +675,6 @@
         private Label LBL_HistorySearch;
         private GroupBox GBX_ActionEvents;
         private GroupBox GBX_History;
-        private ListView LVW_SearchHistory;
         private ColumnHeader CHDR_Title;
         private ColumnHeader CHDR_Author;
         private ColumnHeader CHDR_Type;
@@ -661,5 +687,10 @@
         private CheckBox CHK_SetFavoriting;
         private Button BTN_ClearSpecificSearch;
         private ColumnHeader CHDR_Id;
+        private MenuStrip MNSTRP_Settings;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem MNUITM_OpenSettings;
+        public ListView LVW_CountryResults;
+        public ListView LVW_SearchHistory;
     }
 }

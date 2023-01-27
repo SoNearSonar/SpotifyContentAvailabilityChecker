@@ -3,10 +3,6 @@ using SpotifyAPI.Web;
 using SpotifyAPI.Web.Auth;
 using SpotifyContentAvailabilityChecker.Helpers;
 using SpotifyContentAvailabilityChecker.Objects;
-using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-
 namespace SpotifyContentAvailabilityChecker
 {
     public partial class SCAC : Form
@@ -35,10 +31,17 @@ namespace SpotifyContentAvailabilityChecker
         private void SCAC_Load(object sender, EventArgs e)
         {
             _searches = new List<Search>();
-            _contentSelection = 3;
-            TXT_ContentTypeDisplay.Text = "Unknown (Not Supported)";
-            CBX_SearchBy.SelectedIndex = 0;
-            CBX_HistorySearchBy.SelectedIndex = 0;
+            _contentSelection = 0;
+            TXT_ContentTypeDisplay.Text = Properties.Settings.Default.ContentType;
+            TXT_ContentLinkURI.Text = Properties.Settings.Default.ContentURL;
+            TXT_SearchInput.Text = Properties.Settings.Default.CountrySearch;
+            TXT_HistorySearch.Text = Properties.Settings.Default.HistorySearch;
+            CBX_SearchBy.SelectedIndex = Properties.Settings.Default.CountrySearchBy;
+            CBX_HistorySearchBy.SelectedIndex = Properties.Settings.Default.HistorySearchBy;
+            CHK_FavoriteSearchOnly.Checked = Properties.Settings.Default.SearchFavorites;
+            CHK_SetFavoriting.Checked = Properties.Settings.Default.SetFavoriting;
+            LVW_CountryResults.GridLines = Properties.Settings.Default.ShowGridLines;
+            LVW_SearchHistory.GridLines = Properties.Settings.Default.ShowGridLines;
 
             // Creating the saved history directory and the process to open it
             if (!Directory.Exists(ProcessStarterHelper.DirPath))
@@ -96,6 +99,16 @@ namespace SpotifyContentAvailabilityChecker
             {
                 MessageBoxDisplayHelper.ShowError($"An error occurred while saving your search history:\nError: {ex.Message}", "Program error");
             }
+
+            Properties.Settings.Default.ContentType = TXT_ContentTypeDisplay.Text;
+            Properties.Settings.Default.ContentURL = TXT_ContentLinkURI.Text;
+            Properties.Settings.Default.CountrySearch = TXT_SearchInput.Text;
+            Properties.Settings.Default.HistorySearch = TXT_HistorySearch.Text;
+            Properties.Settings.Default.CountrySearchBy = CBX_SearchBy.SelectedIndex;
+            Properties.Settings.Default.HistorySearchBy = CBX_SearchBy.SelectedIndex;
+            Properties.Settings.Default.SearchFavorites = CHK_FavoriteSearchOnly.Checked;
+            Properties.Settings.Default.SetFavoriting = CHK_SetFavoriting.Checked;
+            Properties.Settings.Default.Save();
         }
 
         private async void BTN_GetAccessToken_Click(object sender, EventArgs e)
@@ -157,6 +170,12 @@ namespace SpotifyContentAvailabilityChecker
         private void BTN_ClearSearch_Click(object sender, EventArgs e)
         {
             TXT_ContentLinkURI.Text = "";
+        }
+
+        private void MNUITM_OpenSettings_Click(object sender, EventArgs e)
+        {
+            SettingsWindow settings = new SettingsWindow(this);
+            settings.ShowDialog();
         }
 
         private void TXT_ContentLinkURI_TextChanged(object sender, EventArgs e)
@@ -232,7 +251,11 @@ namespace SpotifyContentAvailabilityChecker
 
             TXT_ContentLinkURI.Text = LVW_SearchHistory.SelectedItems[0].SubItems[5].Text;
             BTN_StartSearch_Click(sender, e);
-            TCRTL_Main.SelectedIndex = 0;
+
+            if (Properties.Settings.Default.EnableSearchSwitch)
+            {
+                TCRTL_Main.SelectedIndex = 0;
+            }
         }
 
         private void BTN_ClearSearches_Click(object sender, EventArgs e)
@@ -289,6 +312,21 @@ namespace SpotifyContentAvailabilityChecker
         {
             if (CHK_SetFavoriting.Checked)
                 SetFavorite();
+        }
+
+        private void LVW_SearchHistory_ColumnWidthChanging(object sender, ColumnWidthChangingEventArgs e)
+        {
+            switch (e.ColumnIndex)
+            {
+                case 0:
+                    e.Cancel = true;
+                    e.NewWidth = 0;
+                    break;
+                case 1:
+                    e.Cancel = true;
+                    e.NewWidth = 30;
+                    break;
+            }
         }
 
         private async Task OnAccountUseApproved(object sender, ImplictGrantResponse response) 
