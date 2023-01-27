@@ -15,8 +15,6 @@ namespace SpotifyContentAvailabilityChecker
         // Made for holding contries. Used for searching
         private ListView.ListViewItemCollection _itemCollection;
 
-        private Dictionary<string, string> _countryCollection;
-
         // Made for the detection of Spotify content when searching country availability
         private int _contentSelection;
 

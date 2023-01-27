@@ -33,6 +33,7 @@
             this.GBX_ListColumns = new System.Windows.Forms.GroupBox();
             this.CHK_ShowGridlines = new System.Windows.Forms.CheckBox();
             this.BTN_SaveSettings = new System.Windows.Forms.Button();
+            this.BTN_OpenHistoryFolder = new System.Windows.Forms.Button();
             this.GBX_SwitchingWindows.SuspendLayout();
             this.GBX_ListColumns.SuspendLayout();
             this.SuspendLayout();
@@ -79,19 +80,30 @@
             // 
             // BTN_SaveSettings
             // 
-            this.BTN_SaveSettings.Location = new System.Drawing.Point(98, 118);
+            this.BTN_SaveSettings.Location = new System.Drawing.Point(13, 114);
             this.BTN_SaveSettings.Name = "BTN_SaveSettings";
-            this.BTN_SaveSettings.Size = new System.Drawing.Size(87, 23);
+            this.BTN_SaveSettings.Size = new System.Drawing.Size(123, 23);
             this.BTN_SaveSettings.TabIndex = 7;
             this.BTN_SaveSettings.Text = "Save Settings";
             this.BTN_SaveSettings.UseVisualStyleBackColor = true;
             this.BTN_SaveSettings.Click += new System.EventHandler(this.BTN_SaveSettings_Click);
             // 
+            // BTN_OpenHistoryFolder
+            // 
+            this.BTN_OpenHistoryFolder.Location = new System.Drawing.Point(142, 114);
+            this.BTN_OpenHistoryFolder.Name = "BTN_OpenHistoryFolder";
+            this.BTN_OpenHistoryFolder.Size = new System.Drawing.Size(123, 23);
+            this.BTN_OpenHistoryFolder.TabIndex = 8;
+            this.BTN_OpenHistoryFolder.Text = "Open History Folder";
+            this.BTN_OpenHistoryFolder.UseVisualStyleBackColor = true;
+            this.BTN_OpenHistoryFolder.Click += new System.EventHandler(this.BTN_OpenHistoryFolder_Click);
+            // 
             // SettingsWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(278, 151);
+            this.ClientSize = new System.Drawing.Size(278, 147);
+            this.Controls.Add(this.BTN_OpenHistoryFolder);
             this.Controls.Add(this.BTN_SaveSettings);
             this.Controls.Add(this.GBX_ListColumns);
             this.Controls.Add(this.GBX_SwitchingWindows);
@@ -119,5 +131,6 @@
         private GroupBox GBX_ListColumns;
         private CheckBox CHK_ShowGridlines;
         private Button BTN_SaveSettings;
+        private Button BTN_OpenHistoryFolder;
     }
 }
