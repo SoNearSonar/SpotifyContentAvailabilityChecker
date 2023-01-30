@@ -12,6 +12,8 @@
 ### Settings:
 ![image](https://user-images.githubusercontent.com/122957887/215211456-5d6fdf21-a3c1-4694-8f93-f802cc759e8a.png)
 
+## Credits:
+- [JohnnyCrazy](https://github.com/JohnnyCrazy/) - [Spotify API .NET](https://github.com/JohnnyCrazy/SpotifyAPI-NET)
 
 ## Features:
 - Search songs, albums, and podcast availability
