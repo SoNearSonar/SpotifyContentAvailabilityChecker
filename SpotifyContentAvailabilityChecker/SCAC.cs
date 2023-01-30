@@ -223,7 +223,7 @@ namespace SpotifyContentAvailabilityChecker
                         case 1:
                             foreach (ListViewItem item in _itemCollection)
                             {
-                                if (CountriesListHelper.Countries[item.SubItems[1].Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
+                                if (CountriesListHelper.Countries[item.SubItems[0].Text].Contains(TXT_SearchInput.Text, StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     LVW_CountryResults.Items.Add((ListViewItem)item.Clone());
                                 }
@@ -486,7 +486,7 @@ namespace SpotifyContentAvailabilityChecker
                 string authors = SpotifyContentHelper.FillAuthorsOfContent(_album.Artists);
                 FillContentInformation
                 (
-                    _album.Name, 
+                    _album.Name,
                     authors,
                     _album.Copyrights.Count > 1 ? _album.Copyrights[0].Text : "N/A",
                     _album.Copyrights.Count == 1 ? _album.Copyrights[0].Text : _album.Copyrights[1].Text
@@ -540,7 +540,6 @@ namespace SpotifyContentAvailabilityChecker
             TXT_Copyright.Invoke(() => TXT_Copyright.Text = copyright);
             TXT_SoundCopyright.Invoke(() => TXT_SoundCopyright.Text = soundCopyright);
             TXT_Authors.Invoke(() => TXT_Authors.Text = authors);
-            FillItemCollectionObject();
         }
 
         private void FillListViewForAvailability(List<string> availableMarkets)
@@ -550,6 +549,7 @@ namespace SpotifyContentAvailabilityChecker
                 ListViewItem item = new ListViewItem(new string[] { market, CountriesListHelper.Countries[market] });
                 LVW_CountryResults.Items.Add(item);
             }
+            FillItemCollectionObject();
         }
 
         private void FillSearchHistory(string title, string author, string contentType, string link)
